@@ -1,0 +1,27 @@
+{
+    "ROBOT":{
+        "HOST": "172.16.107.2:8081",
+        "PORT": 8080,
+        "HOME_POSE": [-150, -90, 0, -90, -25, -180],
+        "WORK_POSE": [-150, -70, 140, -80, -50, -180],
+        "PREPARING_SPEED": 15,
+        "WORK_SPEED": 15
+    },
+
+    "PLC":{
+        "HOST": "172.16.107.3",
+        "PORT": 502
+    },
+
+    "TOOL_INFO":{
+        "NAME": "TOUCH_HOLDER",
+        "TCP": [[0, 0, 0.302], [0, 0, 0]],
+        "TOUCH_PROBE_DIAMETER": 0.005
+    },
+
+    "DISPENSER_CONFIGERATION":{
+        "ARC": 0,
+        "LINE": 1
+    }
+
+}
