@@ -1,7 +1,7 @@
 from robot.robot import *
 from utils import jsonWorker
 
-def prepare_dispenser_calibration(config):
+def prepare_dispenser_calibration(robot, config):
     """
         Set the robot to work pose.
         Be attentive before starting command. Move the robot in vertical pose with zero gravity mode.
@@ -13,34 +13,56 @@ def prepare_dispenser_calibration(config):
     robot.set_pose(pose(config["ROBOT"]["WORK_POSE"]), speed=config["ROBOT"]["PREPARING_SPEED"], motion_type=MT_JOINT)
     robot.await_stop()
 
-def sense_dispenser_z(config):
-    """
-        Sens Z dispenser coordinate
+# def sense_vertical_point(
+#     robot, diameter, 
+#     device, input_pin=1, 
+#     pin_state=1, detect_speed=(1, 0.5), 
+#     retract_speed = 30, directions=[[0,0,1], [0,0,-1], [1,0,0], [-1,0,0]]
+#     ):
 
-        :param config: config from /config/config.jsonc
-    """
-    robot.set_reference_frame(position([0,0,0], [0,0,0]))
-    robot.translate_along_vector(vector=[-1,1,0], distance=0.05, speed=10)
-    robot.await_stop()
+#     """
+#         Sens Z dispenser coordinate
 
-    detect_point = robot.sensing_vect_2s(
-            vector=[0,0,-1],
-            detect_distance=(0.04, 0.003),
-            detect_speed=(1, 1),
-            device=robot,
-            retract_speed=30,
-            input_pin=2,
-            pin_state=SIG_LOW)
-    robot.await_stop(0.1)
+#         :param config: config from /config/config.jsonc
+#     """
+
+#     # robot.set_reference_frame(position([0,0,0], [0,0,0]))
+#     # robot.translate_along_vector(vector=[-1,1,0], distance=0.05, speed=10)
+#     # robot.await_stop()
+
+#     detect_point = robot.sensing_vect_2s(
+#             vector=[0,0,-1],
+#             detect_distance=(0.04, 0.003),
+#             detect_speed=(1, 1),
+#             device=robot,
+#             retract_speed=30,
+#             input_pin=2,
+#             pin_state=SIG_LOW)
+#     robot.await_stop(0.1)
     
-    return detect_point['point']['z']
+#     return detect_point['point']['z']
 
-def sense_hole(diameter):
+def sense_hole(
+    robot, diameter, 
+    device, input_pin=1, 
+    pin_state=1, detect_speed=(1, 0.5), 
+    retract_speed = 30, directions=[[0,0,1], [0,0,-1], [1,0,0], [-1,0,0]]
+    ):
+
     """
         Sense dispenser hole and find the center.
 
         :param config: config from /config/config.jsonc
+        :param robot: 
+        :param diameter:
+        :param device:
+        :param input_pin:
+        :param pin_state:
+        :param detect_speed:
+        :param retract_speed:
+        :param diraction: 
     """
+
     detected_x = []
     detected_y = []
 
@@ -49,22 +71,23 @@ def sense_hole(diameter):
     
     distance = diameter / 1.9
 
-    for vector in [[0,0,1], [0,0,-1], [1,0,0], [-1,0,0]]:
+    for vector in directions:
         detect_point = robot.sensing_vect_2s(
             vector=vector,
             detect_distance=(distance, 0.003),
-            detect_speed=(1, 0.5),
-            device=robot,
-            input_pin=2,
-            pin_state=SIG_LOW)
+            detect_speed=detect_speed,
+            retract_speed=retract_speed,
+            device=device,
+            input_pin=input_pin,
+            pin_state=pin_state)
         
         detected_x.append(list(detect_point['point'].values())[0])
         detected_y.append(list(detect_point['point'].values())[1])
 
-        robot.set_position(base_center, speed=20, motion_type=MT_LINEAR)
+        robot.set_position(base_center, speed=retract_speed, motion_type=MT_LINEAR)
     
     robot.set_reference_frame(position([0,0,0], [0,0,0]))
-    robot.translate_along_vector(vector=[0,0,1], distance=3e-2, speed=10)
+    # robot.translate_along_vector(vector=[0,0,1], distance=3e-2, speed=10)
 
     return detected_x, detected_y
 
